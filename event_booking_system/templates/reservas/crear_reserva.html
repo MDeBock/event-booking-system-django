@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Reservar {{ salon.nombre }} - Eventos Premium{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0 mt-4">
+            <div class="card-header bg-dark text-white text-center py-3">
+                <h3 class="mb-0">Reservar: {{ salon.nombre }}</h3>
+            </div>
+            <div class="card-body p-4">
+                <div class="alert alert-info mb-4">
+                    <strong>Precio Base del Salón:</strong> ${{ salon.precio_base }}<br>
+                    <small>Capacidad máxima: {{ salon.capacidad_maxima }} personas.</small>
+                </div>
+
+                <form method="POST" action="">
+                    {% csrf_token %} <div class="mb-3">
+                        <label class="form-label fw-bold">Tipo de Evento</label>
+                        <select name="tipo_evento" class="form-select" required>
+                            <option value="">Seleccione el tipo de evento...</option>
+                            {% for tipo in tipos_evento %}
+                                <option value="{{ tipo.id }}">{{ tipo.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Fecha y Hora de Inicio</label>
+                            <input type="datetime-local" name="fecha_inicio" class="form-control" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Fecha y Hora de Liberación</label>
+                            <input type="datetime-local" name="fecha_fin" class="form-control" required>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+                    <h5 class="fw-bold mb-3">Servicios Adicionales (Opcionales)</h5>
+                    
+                    {% if adicionales %}
+                        <div class="row">
+                            {% for extra in adicionales %}
+                            <div class="col-md-6 mb-2">
+                                <div class="form-check border p-2 rounded">
+                                    <input class="form-check-input ms-1" type="checkbox" name="extras" value="{{ extra.id }}" id="extra{{ extra.id }}">
+                                    <label class="form-check-label ms-2" for="extra{{ extra.id }}">
+                                        {{ extra.nombre }} <strong class="text-success">+${{ extra.precio_actual }}</strong>
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No hay servicios adicionales configurados para este salón.</p>
+                    {% endif %}
+
+                    <div class="d-grid gap-2 mt-5">
+                        <button type="submit" class="btn btn-primary btn-lg fw-bold">Confirmar Reserva</button>
+                        <a href="{% url 'catalogo:lista_salones' %}" class="btn btn-outline-secondary">Cancelar y volver</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

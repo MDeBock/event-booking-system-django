@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}Mi Panel - Eventos Premium{% endblock %}
+
+{% block content %}
+<h2 class="display-6 fw-bold mb-4">Hola, {{ user.first_name|default:user.username }}</h2>
+<p class="lead text-muted">Acá podés gestionar tus eventos y consultar los saldos pendientes.</p>
+
+<div class="card shadow-sm border-0 mt-4">
+    <div class="card-header bg-white py-3">
+        <h5 class="mb-0 fw-bold">Historial de Reservas</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nº</th>
+                        <th>Salón</th>
+                        <th>Fecha del Evento</th>
+                        <th>Estado</th>
+                        <th>Abonado</th>
+                        <th>Saldo a Pagar</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reserva in reservas %}
+                    <tr>
+                        <td class="fw-bold">#{{ reserva.id }}</td>
+                        <td>{{ reserva.salon.nombre }}</td>
+                        <td>{{ reserva.fecha_hora_inicio|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <span class="badge {% if reserva.estado == 'Confirmada' %}bg-success{% elif reserva.estado == 'Pendiente' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                                {{ reserva.estado }}
+                            </span>
+                        </td>
+                        <td class="text-success">${{ reserva.monto_abonado }}</td>
+                        <td class="fw-bold text-danger">${{ reserva.saldo_a_pagar }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center py-4 text-muted">
+                            Todavía no tenés reservas realizadas. <a href="{% url 'catalogo:lista_salones' %}">¡Buscá un salón acá!</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

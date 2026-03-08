@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Inicio - Eventos Premium{% endblock %}
+
+{% block content %}
+<div class="p-5 mb-4 bg-white border rounded-3 shadow-sm text-center">
+    <div class="container-fluid py-5">
+        <h1 class="display-4 fw-bold text-dark">Organizá tu evento ideal</h1>
+        <p class="col-md-8 mx-auto fs-4 text-muted mt-3">
+            Bienvenido a nuestro sistema de reservas. Explorá nuestros salones, elegí los servicios que mejor se adapten a tu estilo y asegurá tu fecha hoy mismo.
+        </p>
+        <a href="{% url 'catalogo:lista_salones' %}" class="btn btn-primary btn-lg mt-4 px-5 py-3 shadow-sm fw-bold">Ver Salones Disponibles</a>
+    </div>
+</div>
+
+<div class="row align-items-md-stretch text-center mt-5">
+    <div class="col-md-6 mb-4">
+        <div class="h-100 p-5 text-bg-dark rounded-3 shadow-sm">
+            <h2 class="fw-bold">Transparencia Total</h2>
+            <p class="lead mt-3 text-light">Congelamos el precio de tu salón y extras al momento de señar. Cero sorpresas en tu presupuesto frente a la inflación.</p>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="h-100 p-5 bg-white border rounded-3 shadow-sm">
+            <h2 class="fw-bold text-dark">A Tu Medida</h2>
+            <p class="lead mt-3 text-muted">Armá tu evento desde cero seleccionando cada detalle o elegí uno de nuestros paquetes pre-armados para tu tranquilidad.</p>
+        </div>
+    </div>
+</div>
+{% endblock content %}
