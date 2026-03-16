@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Crear Cuenta - Eventos Premium{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card shadow border-0 rounded-3">
+            <div class="card-header bg-dark text-white text-center py-4 rounded-top-3">
+                <h4 class="mb-0 fw-bold">Crear una Cuenta</h4>
+            </div>
+            <div class="card-body p-4 p-md-5">
+                
+                <form method="POST" action="">
+                    {% csrf_token %}
+                    
+                    {% if form.errors %}
+                        <div class="alert alert-danger border-0 shadow-sm">
+                            Por favor, corregí los errores indicados abajo.
+                        </div>
+                    {% endif %}
+
+                    {% for field in form %}
+                        <div class="mb-3">
+                            <label class="form-label fw-bold text-secondary">{{ field.label }}</label>
+                            <div class="form-control bg-light">
+                                {{ field }}
+                            </div>
+                            {% if field.help_text %}
+                                <div class="form-text small mt-1">{{ field.help_text|safe }}</div>
+                            {% endif %}
+                            {% for error in field.errors %}
+                                <div class="text-danger small fw-bold mt-1">{{ error }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endfor %}
+                    
+                    <button type="submit" class="btn btn-primary w-100 btn-lg fw-bold mt-4 shadow-sm">Registrarme</button>
+                </form>
+
+                <hr class="my-4 text-muted">
+                <div class="text-center">
+                    <p class="text-muted mb-0">¿Ya tenés una cuenta?</p>
+                    <a href="{% url 'usuarios:login' %}" class="btn btn-outline-dark mt-2 w-100 fw-bold">Iniciar Sesión</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-control input { width: 100%; border: none; background: transparent; outline: none; padding: 5px 0; }
+</style>
+{% endblock %}

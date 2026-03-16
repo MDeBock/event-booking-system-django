@@ -1,24 +1,49 @@
 {% extends 'base.html' %}
-
-{% block title %}Reservar {{ salon.nombre }} - Eventos Premium{% endblock %}
+{% load humanize %} {% block title %}Reservar {{ salon.nombre }} - Eventos Premium{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card shadow-sm border-0 mt-4">
-            <div class="card-header bg-dark text-white text-center py-3">
-                <h3 class="mb-0">Reservar: {{ salon.nombre }}</h3>
+    <div class="col-12 col-lg-10">
+        
+        {% if salon.imagen_portada %}
+        <a data-fslightbox="galeria" data-type="image" href="{{ salon.imagen_portada.url }}" class="d-block mb-4">
+            <div class="w-100 rounded-3 shadow-sm" style="height: 350px; background-image: url('{{ salon.imagen_portada.url }}'); background-size: cover; background-position: center; cursor: zoom-in; transition: opacity 0.3s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'"></div>
+        </a>
+        {% endif %}
+
+        <div class="card shadow-sm border-0 mb-5">
+            <div class="card-header bg-dark text-white text-center py-3 rounded-top-3">
+                <h3 class="mb-0 fw-bold">{{ salon.nombre }}</h3>
             </div>
-            <div class="card-body p-4">
-                <div class="alert alert-info mb-4">
-                    <strong>Precio Base del Salón:</strong> ${{ salon.precio_base }}<br>
-                    <small>Capacidad máxima: {{ salon.capacidad_maxima }} personas.</small>
+            <div class="card-body p-4 p-md-5">
+                
+                <div class="row mb-5 align-items-center">
+                    <div class="col-lg-7 mb-4 mb-lg-0 pe-lg-4">
+                        <h4 class="fw-bold text-dark">Descripción</h4>
+                        <p class="lead text-muted">{{ salon.descripcion|default:"Salón exclusivo diseñado para hacer de tu evento un momento inolvidable." }}</p>
+                    </div>
+                    <div class="col-lg-5">
+                        <div class="alert alert-info border-0 p-4 rounded-3 text-center mb-0 shadow-sm">
+                            <span class="text-muted fs-6 text-uppercase fw-bold">Precio Base</span><br>
+                            
+                            <div class="text-nowrap overflow-hidden mt-2">
+                                <strong class="text-success display-6 fw-bold">${{ salon.precio_base|floatformat:0|intcomma }}</strong>
+                            </div>
+                            
+                            <span class="badge bg-dark rounded-pill mt-3 px-3 py-2 fs-6">Capacidad máxima: {{ salon.capacidad_maxima }}</span>
+                        </div>
+                    </div>
                 </div>
 
+                <hr class="my-5 text-muted">
+
                 <form method="POST" action="">
-                    {% csrf_token %} <div class="mb-3">
-                        <label class="form-label fw-bold">Tipo de Evento</label>
-                        <select name="tipo_evento" class="form-select" required>
+                    {% csrf_token %}
+                    <h4 class="fw-bold text-dark mb-4">Configurá tu Fecha</h4>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold text-secondary">Tipo de Evento</label>
+                        <select name="tipo_evento" class="form-select form-select-lg" required>
                             <option value="">Seleccione el tipo de evento...</option>
                             {% for tipo in tipos_evento %}
                                 <option value="{{ tipo.id }}">{{ tipo.nombre }}</option>
@@ -27,43 +52,67 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Fecha y Hora de Inicio</label>
-                            <input type="datetime-local" name="fecha_inicio" class="form-control" required>
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label fw-bold text-secondary">Fecha y Hora de Inicio</label>
+                            <input type="datetime-local" name="fecha_inicio" class="form-control form-control-lg" required>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label fw-bold">Fecha y Hora de Liberación</label>
-                            <input type="datetime-local" name="fecha_fin" class="form-control" required>
+                        <div class="col-md-6 mb-4">
+                            <label class="form-label fw-bold text-secondary">Fecha y Hora de Liberación</label>
+                            <input type="datetime-local" name="fecha_fin" class="form-control form-control-lg" required>
                         </div>
                     </div>
 
-                    <hr class="my-4">
-                    <h5 class="fw-bold mb-3">Servicios Adicionales (Opcionales)</h5>
-                    
+                    <h5 class="fw-bold mt-5 mb-3 text-dark">Servicios Adicionales (Opcionales)</h5>
                     {% if adicionales %}
-                        <div class="row">
+                        <div class="row g-3">
                             {% for extra in adicionales %}
-                            <div class="col-md-6 mb-2">
-                                <div class="form-check border p-2 rounded">
-                                    <input class="form-check-input ms-1" type="checkbox" name="extras" value="{{ extra.id }}" id="extra{{ extra.id }}">
-                                    <label class="form-check-label ms-2" for="extra{{ extra.id }}">
-                                        {{ extra.nombre }} <strong class="text-success">+${{ extra.precio_actual }}</strong>
+                            <div class="col-md-6">
+                                <div class="form-check border p-3 rounded-3 bg-white shadow-sm d-flex align-items-center h-100">
+                                    <input class="form-check-input ms-1" type="checkbox" name="extras" value="{{ extra.id }}" id="e{{ extra.id }}" style="transform: scale(1.2);">
+                                    <label class="form-check-label ms-3 flex-grow-1" for="e{{ extra.id }}">
+                                        <span class="fw-bold text-dark fs-5">{{ extra.nombre }}</span><br>
+                                        <span class="text-success fw-bold">+${{ extra.precio_actual|floatformat:0|intcomma }}</span>
                                     </label>
                                 </div>
                             </div>
                             {% endfor %}
                         </div>
                     {% else %}
-                        <p class="text-muted">No hay servicios adicionales configurados para este salón.</p>
+                        <p class="text-muted">No hay adicionales configurados para este salón.</p>
                     {% endif %}
 
-                    <div class="d-grid gap-2 mt-5">
-                        <button type="submit" class="btn btn-primary btn-lg fw-bold">Confirmar Reserva</button>
-                        <a href="{% url 'catalogo:lista_salones' %}" class="btn btn-outline-secondary">Cancelar y volver</a>
+                    <div class="d-grid gap-3 mt-5">
+                        {% if user.is_authenticated %}
+                            <button type="submit" class="btn btn-primary btn-lg fw-bold py-3 shadow-sm">Confirmar Reserva y Congelar Precios</button>
+                        {% else %}
+                            <div class="alert alert-warning text-center border-0 mb-0 py-3 shadow-sm rounded-3">
+                                <strong>¡Atención!</strong> Para confirmar tu fecha necesitamos que te identifiques.
+                            </div>
+                            <a href="{% url 'usuarios:login' %}?next={{ request.path }}" class="btn btn-success btn-lg fw-bold py-3 shadow-sm">Iniciar Sesión para Reservar</a>
+                        {% endif %}
+                        <a href="{% url 'catalogo:lista_salones' %}" class="btn btn-outline-secondary py-2 mt-2">Cancelar y volver al catálogo</a>
                     </div>
                 </form>
+
+                {% if salon.galeria.all %}
+                <hr class="my-5 text-muted">
+                <h4 class="fw-bold text-dark mb-4">Galería de Fotos</h4>
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-3">
+                    {% for item in salon.galeria.all %}
+                    <div class="col">
+                        <a data-fslightbox="galeria" data-type="image" href="{{ item.imagen.url }}" class="d-block">
+                            <div class="rounded-3 shadow-sm overflow-hidden" style="height: 180px; cursor: zoom-in;">
+                                <img src="{{ item.imagen.url }}" class="w-100 h-100" alt="Foto del salón" style="object-fit: cover; transition: transform 0.3s;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                            </div>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
             </div>
         </div>
     </div>
 </div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fslightbox/3.4.1/index.min.js"></script>
 {% endblock %}

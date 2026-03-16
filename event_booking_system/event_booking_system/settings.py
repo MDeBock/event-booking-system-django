@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
     'usuarios',
     'catalogo',
     'reservas',
@@ -107,7 +108,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-ar'
 
 TIME_ZONE = 'UTC'
 
@@ -127,3 +128,11 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'usuarios.CustomUser'
+
+# Rutas de redirección para la autenticación
+LOGIN_REDIRECT_URL = 'usuarios:panel'  # A dónde va el usuario DESPUÉS de loguearse
+LOGIN_URL = 'usuarios:login'           # A dónde manda Django a un usuario anónimo si intenta entrar a una URL protegida
+
+# Configuración de archivos Media (Subidas de usuarios)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

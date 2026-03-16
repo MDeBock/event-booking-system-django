@@ -1,14 +1,17 @@
 {% extends 'base.html' %}
-
-{% block title %}Mi Panel - Eventos Premium{% endblock %}
+{% load humanize %} {% block title %}Mi Panel - Eventos Premium{% endblock %}
 
 {% block content %}
-<h2 class="display-6 fw-bold mb-4">Hola, {{ user.first_name|default:user.username }}</h2>
-<p class="lead text-muted">Acá podés gestionar tus eventos y consultar los saldos pendientes.</p>
+<div class="row mb-4">
+    <div class="col">
+        <h2 class="fw-bold text-dark">Bienvenido, {{ user.username }}</h2>
+        <p class="text-muted">Acá podés gestionar todas tus reservas y pagos.</p>
+    </div>
+</div>
 
-<div class="card shadow-sm border-0 mt-4">
-    <div class="card-header bg-white py-3">
-        <h5 class="mb-0 fw-bold">Historial de Reservas</h5>
+<div class="card shadow-sm border-0 rounded-3">
+    <div class="card-header bg-dark text-white py-3">
+        <h5 class="mb-0 fw-bold"><i class="fas fa-calendar-check me-2"></i> Mis Reservas</h5>
     </div>
     <div class="card-body p-0">
         <div class="table-responsive">
@@ -20,7 +23,8 @@
                         <th>Fecha del Evento</th>
                         <th>Estado</th>
                         <th>Abonado</th>
-                        <th>Saldo a Pagar</th>
+                        <th>Saldo Pendiente</th>
+                        <th class="text-center">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -34,12 +38,22 @@
                                 {{ reserva.estado }}
                             </span>
                         </td>
-                        <td class="text-success">${{ reserva.monto_abonado }}</td>
-                        <td class="fw-bold text-danger">${{ reserva.saldo_a_pagar }}</td>
+                        <td class="text-success">${{ reserva.monto_abonado|floatformat:0|intcomma }}</td>
+                        <td class="fw-bold text-danger">${{ reserva.saldo_a_pagar|floatformat:0|intcomma }}</td>
+                        
+                        <td class="text-center">
+                            {% if reserva.saldo_a_pagar > 0 %}
+                                <a href="{% url 'reservas:pagar_reserva' reserva.id %}" class="btn btn-sm btn-primary fw-bold shadow-sm">
+                                    {% if reserva.monto_abonado == 0 %}Abonar Seña{% else %}Pagar Saldo{% endif %}
+                                </a>
+                            {% else %}
+                                <span class="badge bg-light text-success border border-success"><i class="fas fa-check"></i> Pagado Total</span>
+                            {% endif %}
+                        </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="text-center py-4 text-muted">
+                        <td colspan="7" class="text-center py-4 text-muted">
                             Todavía no tenés reservas realizadas. <a href="{% url 'catalogo:lista_salones' %}">¡Buscá un salón acá!</a>
                         </td>
                     </tr>

@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% load humanize %} 
+
+{% block title %}Pagar Reserva - Eventos Premium{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <h2 class="fw-bold mb-4">Abonar Reserva #{{ reserva.id }}</h2>
+        
+        <div class="row">
+            <div class="col-md-5 order-md-2 mb-4">
+                <div class="card shadow-sm border-0 bg-light">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold text-dark mb-3">Resumen de Cuenta</h5>
+                        <p class="mb-1 text-muted"><strong>Salón:</strong> {{ reserva.salon.nombre }}</p>
+                        <p class="mb-3 text-muted"><strong>Fecha:</strong> {{ reserva.fecha_hora_inicio|date:"d/m/Y H:i" }}</p>
+                        
+                        <ul class="list-group list-group-flush mb-3">
+                            <li class="list-group-item d-flex justify-content-between bg-transparent px-0">
+                                <span class="text-secondary">Presupuesto Actualizado</span>
+                                <strong class="text-dark">${{ presupuesto_actualizado|floatformat:0|intcomma }}</strong>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between bg-transparent px-0 mt-2 border-0 pb-0">
+                                <span class="text-success">Ya abonado (Nominal)</span>
+                                <strong class="text-success">- ${{ reserva.monto_abonado|floatformat:0|intcomma }}</strong>
+                            </li>
+                            
+                            {% if descuento_pago_anticipado > 0 %}
+                            <li class="list-group-item d-flex justify-content-between bg-transparent px-0 pt-1 text-success small">
+                                <span><i class="fas fa-gift me-1"></i> Descuento Pago Anticipado</span>
+                                <strong>- ${{ descuento_pago_anticipado|floatformat:0|intcomma }}</strong>
+                            </li>
+                            {% endif %}
+                        </ul>
+                        
+                        <div class="d-flex justify-content-between align-items-center border-top pt-3 mt-3">
+                            <span class="fs-5 fw-bold text-danger">Saldo Pendiente:</span>
+                            <span class="display-6 fw-bold text-danger">${{ saldo_real_pendiente|floatformat:0|intcomma }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-7 order-md-1">
+                <div class="card shadow-sm border-0">
+                    <div class="card-body p-4 p-md-5">
+                        <h4 class="fw-bold mb-4">Ingresar Pago</h4>
+                        
+                        <div class="alert alert-info border-0 shadow-sm mb-4">
+                            <i class="fas fa-info-circle"></i> Podés abonar una seña para confirmar la fecha o saldar el total.
+                        </div>
+
+                        <form method="POST">
+                            {% csrf_token %}
+                            
+                            <div class="mb-4 bg-light p-3 rounded-3 border">
+                                <label class="form-label fw-bold text-dark fs-5">Monto a Abonar hoy ($)</label>
+                                <input type="number" name="monto_pago" class="form-control form-control-lg text-primary fw-bold fs-3" 
+                                       value="{{ sena_sugerida|floatformat:0 }}" min="1" max="{{ saldo_real_pendiente|floatformat:0 }}" required>
+                                <div class="form-text mt-2">Te sugerimos una seña del 30% (${{ sena_sugerida|floatformat:0|intcomma }}), pero podés modificar este valor.</div>
+                            </div>
+
+                            <hr class="my-4 text-muted">
+                            <h5 class="fw-bold mb-3 text-secondary">Datos de la Tarjeta (Simulador)</h5>
+
+                            <div class="mb-3">
+                                <input type="text" class="form-control" placeholder="Nombre en la tarjeta (Ej: JUAN PEREZ)" required>
+                            </div>
+                            <div class="mb-3">
+                                <input type="text" class="form-control" placeholder="Número de Tarjeta (0000 0000 0000 0000)" maxlength="16" required>
+                            </div>
+                            <div class="row mb-4">
+                                <div class="col-6">
+                                    <input type="text" class="form-control" placeholder="Vencimiento (MM/AA)" maxlength="5" required>
+                                </div>
+                                <div class="col-6">
+                                    <input type="text" class="form-control" placeholder="Código (CVC)" maxlength="4" required>
+                                </div>
+                            </div>
+
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-success btn-lg fw-bold py-3 shadow-sm">
+                                    Procesar Pago y Confirmar Reserva
+                                </button>
+                                <a href="{% url 'usuarios:panel' %}" class="btn btn-outline-secondary py-2 mt-2">Cancelar y volver al panel</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
