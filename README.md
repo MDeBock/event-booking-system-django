@@ -1,5 +1,20 @@
 # Sistema de Gestión de Reservas y Eventos (SaaS B2B2C)
 
+## Cómo ejecutar este proyecto localmente
+Clonar el repositorio.
+
+Crear un entorno virtual: python -m venv env
+
+Activar el entorno virtual e instalar dependencias: pip install -r requirements.txt
+
+Aplicar las migraciones para crear la base de datos local: python manage.py migrate
+
+Crear un superusuario para acceder al Dashboard Gerencial: python manage.py createsuperuser
+
+Iniciar el servidor: python manage.py runserver
+
+Acceder a http://127.0.0.1:8000 en el navegador. Para habilitar las funciones financieras y métricas en el panel, asignar el grupo "Administrativos" al usuario desde el admin nativo (/admin/).
+
 ## Descripción del Proyecto
 Plataforma web desarrollada en Django para la comercialización y gestión de salones de eventos. Este proyecto no es un simple CRUD; está diseñado con un enfoque estricto en la lógica de negocios real, resolviendo el problema de las cotizaciones en economías inflacionarias. Permite a los clientes congelar porcentajes de su evento mediante el pago de señas, y le provee al staff un tablero de control (Dashboard) segmentado por roles.
 
@@ -86,17 +101,3 @@ erDiagram
         int calificacion
     }
 
-## Cómo ejecutar este proyecto localmente
-Clonar el repositorio.
-
-Crear un entorno virtual: python -m venv env
-
-Activar el entorno virtual e instalar dependencias: pip install -r requirements.txt
-
-Aplicar las migraciones para crear la base de datos local: python manage.py migrate
-
-Crear un superusuario para acceder al Dashboard Gerencial: python manage.py createsuperuser
-
-Iniciar el servidor: python manage.py runserver
-
-Acceder a http://127.0.0.1:8000 en el navegador. Para habilitar las funciones financieras y métricas en el panel, asignar el grupo "Administrativos" al usuario desde el admin nativo (/admin/).
