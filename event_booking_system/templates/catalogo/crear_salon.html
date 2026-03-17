@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}Nuevo Salón - Gestión Interna{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold text-dark"><i class="fas fa-plus-circle text-primary me-2"></i> Alta de Nuevo Salón</h2>
+            <a href="{% url 'usuarios:panel_gerente' %}" class="btn btn-outline-secondary">Volver al Dashboard</a>
+        </div>
+
+        <div class="card shadow-sm border-0 rounded-3">
+            <div class="card-body p-4 p-md-5">
+                
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-8 mb-3">
+                            <label class="form-label fw-bold text-secondary">Nombre del Salón</label>
+                            {{ form.nombre }}
+                            <div class="text-danger small">{{ form.nombre.errors }}</div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label fw-bold text-secondary">Capacidad Máx.</label>
+                            {{ form.capacidad_maxima }}
+                            <div class="text-danger small">{{ form.capacidad_maxima.errors }}</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-secondary">Descripción Comercial</label>
+                        {{ form.descripcion }}
+                        <div class="text-danger small">{{ form.descripcion.errors }}</div>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold text-secondary">Precio Base ($)</label>
+                            {{ form.precio_base }}
+                            <div class="text-danger small">{{ form.precio_base.errors }}</div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold text-secondary">Imagen de Portada</label>
+                            {{ form.imagen_portada }}
+                            <div class="form-text">Formatos recomendados: JPG, PNG, WebP.</div>
+                            <div class="text-danger small">{{ form.imagen_portada.errors }}</div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4 bg-light p-3 rounded border">
+                        <label class="form-label fw-bold text-dark mb-3"><i class="fas fa-concierge-bell me-2"></i> Servicios Adicionales Permitidos</label>
+                        <div class="row">
+                            <div class="col-12 checkbox-grid">
+                                {{ form.adicionales_disponibles }}
+                            </div>
+                        </div>
+                        <div class="text-danger small">{{ form.adicionales_disponibles.errors }}</div>
+                    </div>
+
+                    <div class="d-grid mt-5">
+                        <button type="submit" class="btn btn-primary btn-lg fw-bold shadow-sm">
+                            <i class="fas fa-save me-2"></i> Guardar y Publicar Salón
+                        </button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Pequeño truco para que los checkboxes se vean en columnas y no en una lista infinita hacia abajo */
+    .checkbox-grid ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 15px; }
+    .checkbox-grid li { background: #fff; padding: 8px 15px; border-radius: 8px; border: 1px solid #dee2e6; width: calc(50% - 15px); }
+</style>
+{% endblock %}

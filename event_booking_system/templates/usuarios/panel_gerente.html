@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% block title %}Dashboard Interno - Eventos Premium{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col-md-8">
+        <h2 class="fw-bold text-dark"><i class="fas fa-chart-line me-2"></i> Tablero de Operaciones</h2>
+        <p class="text-muted">Gestión de reservas del sistema.</p>
+    </div>
+    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+        <a href="{% url 'catalogo:crear_salon' %}" class="btn btn-primary fw-bold shadow-sm">
+            <i class="fas fa-plus me-1"></i> Nuevo Salón
+        </a>
+    </div>
+</div>
+
+<div class="row g-4 mb-5">
+    
+    {% if es_administrativo %}
+    <div class="col-md-4">
+        <div class="card bg-primary text-white border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <h6 class="text-uppercase fw-bold text-white-50 mb-2">Recaudación Total</h6>
+                <h2 class="display-6 fw-bold mb-0">${{ recaudacion|floatformat:0|intcomma }}</h2>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="col-md-{% if es_administrativo %}4{% else %}6{% endif %}">
+        <div class="card bg-success text-white border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <h6 class="text-uppercase fw-bold text-white-50 mb-2">Eventos Confirmados</h6>
+                <h2 class="display-6 fw-bold mb-0">{{ reservas_confirmadas }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-{% if es_administrativo %}4{% else %}6{% endif %}">
+        <div class="card bg-warning text-dark border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <h6 class="text-uppercase fw-bold opacity-75 mb-2">Señas Pendientes</h6>
+                <h2 class="display-6 fw-bold mb-0">{{ reservas_pendientes }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 rounded-3 mb-5">
+    <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-bold"><i class="fas fa-list me-2"></i> Todas las Reservas</h5>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Nº</th>
+                        <th>Cliente</th>
+                        <th>Salón</th>
+                        <th>Fecha del Evento</th>
+                        <th>Estado</th>
+                        
+                        {% if es_administrativo %}
+                        <th>Abonado</th>
+                        <th class="text-center">Deuda</th>
+                        {% endif %}
+                        
+                        <th class="text-center">Acciones Operativas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reserva in reservas %}
+                    <tr>
+                        <td class="fw-bold text-secondary">#{{ reserva.id }}</td>
+                        <td class="fw-bold">{{ reserva.cliente.username }}</td>
+                        <td>{{ reserva.salon.nombre }}</td>
+                        <td>{{ reserva.fecha_hora_inicio|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            <span class="badge {% if reserva.estado == 'Confirmada' %}bg-success{% elif reserva.estado == 'Pendiente' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                                {{ reserva.estado }}
+                            </span>
+                        </td>
+                        
+                        {% if es_administrativo %}
+                        <td class="text-success">${{ reserva.monto_abonado|floatformat:0|intcomma }}</td>
+                        <td class="text-center fw-bold text-danger">
+                            {% if reserva.saldo_a_pagar > 0 %}
+                                ${{ reserva.saldo_a_pagar|floatformat:0|intcomma }}
+                            {% else %}
+                                <span class="text-success"><i class="fas fa-check"></i> Al día</span>
+                            {% endif %}
+                        </td>
+                        {% endif %}
+
+                        <td class="text-center">
+                            <button type="button" class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalDetalle{{ reserva.id }}">
+                                <i class="fas fa-eye"></i> Ver Detalle
+                            </button>
+                        </td>
+                    </tr>
+
+                    <div class="modal fade" id="modalDetalle{{ reserva.id }}" tabindex="-1" aria-labelledby="modalLabel{{ reserva.id }}" aria-hidden="true">
+                        <div class="modal-dialog modal-lg modal-dialog-centered">
+                            <div class="modal-content border-0 shadow">
+                                <div class="modal-header bg-dark text-white">
+                                    <h5 class="modal-title fw-bold" id="modalLabel{{ reserva.id }}">
+                                        <i class="fas fa-calendar-check me-2"></i> Detalle de Reserva #{{ reserva.id }}
+                                    </h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                                </div>
+                                <div class="modal-body p-4">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-4 mb-md-0 border-end">
+                                            <h6 class="text-uppercase text-muted fw-bold mb-3">Datos del Cliente</h6>
+                                            <p class="mb-1"><strong>Usuario:</strong> {{ reserva.cliente.username }}</p>
+                                            <p class="mb-1"><strong>Email:</strong> {{ reserva.cliente.email|default:"No registrado" }}</p>
+                                            <p class="mb-1"><strong>Fecha de registro:</strong> {{ reserva.cliente.date_joined|date:"d/m/Y" }}</p>
+                                        </div>
+                                        
+                                        <div class="col-md-6">
+                                            <h6 class="text-uppercase text-muted fw-bold mb-3">Detalles del Evento</h6>
+                                            <p class="mb-1"><strong>Salón:</strong> {{ reserva.salon.nombre }}</p>
+                                            <p class="mb-1"><strong>Tipo:</strong> {{ reserva.tipo_evento.nombre }}</p>
+                                            <p class="mb-1"><strong>Inicio:</strong> {{ reserva.fecha_hora_inicio|date:"d/m/Y H:i" }}</p>
+                                            <p class="mb-1"><strong>Fin:</strong> {{ reserva.fecha_hora_liberacion|date:"d/m/Y H:i" }}</p>
+                                            
+                                            <hr>
+                                            
+                                            <h6 class="text-uppercase text-muted fw-bold mb-2">Servicios Adicionales Contratados:</h6>
+                                            {% if reserva.adicionales.all %}
+                                                <ul class="list-group list-group-flush">
+                                                {% for extra in reserva.adicionales.all %}
+                                                    <li class="list-group-item bg-transparent px-0 py-1 border-0">
+                                                        <i class="fas fa-check-circle text-success me-2"></i> {{ extra.adicional.nombre }}
+                                                    </li>
+                                                {% endfor %}
+                                                </ul>
+                                            {% else %}
+                                                <p class="text-muted fst-italic mb-0">No se contrataron adicionales.</p>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="modal-footer bg-light">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar ventana</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            Todavía no hay reservas registradas en el sistema.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="pb-5 mb-5"></div>
+{% endblock %}

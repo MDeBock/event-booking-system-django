@@ -1,22 +1,25 @@
-# Sistema de Gestión de Reservas y Eventos (Backend Django)
+# Sistema de Gestión de Reservas y Eventos (SaaS B2B2C)
 
 ## Descripción del Proyecto
-Este proyecto es una refactorización completa y escalable de un sistema de reservas de eventos. Diseñado con un enfoque estricto en la robustez del backend, implementa lógicas de negocio reales como el congelamiento de precios históricos, manejo de señas con recálculos por inflación, prevención de solapamiento de fechas y control de accesos basado en roles.
+Plataforma web desarrollada en Django para la comercialización y gestión de salones de eventos. Este proyecto no es un simple CRUD; está diseñado con un enfoque estricto en la lógica de negocios real, resolviendo el problema de las cotizaciones en economías inflacionarias. Permite a los clientes congelar porcentajes de su evento mediante el pago de señas, y le provee al staff un tablero de control (Dashboard) segmentado por roles.
 
-## Características Principales
-* **Gestión de Usuarios y Roles:** Sistema de permisos estructurado para SuperAdmin, Administradores, Empleados (Reservas/Administrativos) y Clientes, integrando el sistema nativo de grupos de Django con un modelo de usuario personalizado.
-* **Cotización y Congelamiento de Precios:** Lógica contable que preserva el valor histórico de salones y servicios adicionales al momento de la reserva, protegiendo las señas iniciales contra la devaluación o cambios de tarifas.
-* **Prevención de Solapamientos:** Motor de validación de fechas que bloquea la disponibilidad considerando tanto el horario de duración del evento como los tiempos posteriores de limpieza y liberación de las instalaciones.
-* **Catálogo Dinámico y Paquetes:** Sistema dual que permite el armado de eventos a medida o la selección de paquetes prearmados (combos) orientados a facilitar la elección del cliente.
-* **Sistema de Reseñas:** Feedback de solo lectura y acceso público, restringido de forma estricta a reservas que hayan alcanzado el estado "Finalizada".
+## Características Principales (Fase 1 - Core)
+
+* **Motor Financiero Anti-Inflación:** Algoritmo de recálculo dinámico. Si el precio del salón aumenta, el sistema respeta matemáticamente el porcentaje del evento que el cliente ya abonó (seña) y solo aplica el nuevo precio al porcentaje deudor, generando automáticamente una bonificación contable ("Descuento por Pago Anticipado") para cuadrar la caja del negocio.
+* **Control de Acceso Basado en Roles (RBAC):** Separación total de vistas. Los clientes acceden a un panel de seguimiento de cuenta, mientras que el personal (Staff/Administrativos) es redirigido a un Dashboard Gerencial exclusivo, sin necesidad de darles acceso al `/admin/` nativo de Django.
+* **Catálogo y Alta Dinámica:** Gestión de salones, servicios adicionales y capacidades desde el frontend. Inclusión de subida de imágenes optimizadas (`ImageField`) y galerías interactivas con Lightbox.
+* **Arquitectura de Vistas Desacopladas:** Uso intensivo de plantillas dinámicas y Modales de Bootstrap para renderizar relaciones complejas (Reservas -> Detalles -> Adicionales) garantizando una experiencia de usuario (UX) fluida y sin recargas innecesarias.
+
+*Nota: La arquitectura de la base de datos ya se encuentra preparada para la Fase 2 del roadmap (Sistema de Reseñas y Paquetes/Combos).*
 
 ## Tecnologías Utilizadas
-* **Framework:** Django (Python)
-* **Base de Datos:** SQLite (Modelo de datos optimizado para migraciones directas a entornos de producción)
-* **Dependencias:** 100% Open Source, sin librerías ni herramientas de pago.
+* **Backend:** Python 3, Django
+* **Base de Datos:** SQLite3 (Modelo de datos normalizado y preparado para migración a PostgreSQL)
+* **Frontend:** HTML5, Bootstrap 5, FontAwesome, FsLightbox
+* **Arquitectura:** MVT (Model-View-Template), DRY (Don’t Repeat Yourself)
 
 ## Arquitectura de la Base de Datos (MER)
-A continuación se detalla el Modelo Entidad-Relación, diseñado para garantizar la integridad de los datos financieros, temporales y relacionales del sistema:
+El Modelo Entidad-Relación fue diseñado para garantizar la integridad financiera y escalar hacia futuras integraciones de módulos (Reseñas y Paquetes prearmados):
 
 ```mermaid
 erDiagram
@@ -26,8 +29,6 @@ erDiagram
         string username "Heredado Django"
         string password "Heredado Django"
         string email "Heredado Django"
-        string first_name "Heredado Django"
-        string last_name "Heredado Django"
         string telefono "Custom"
         string dni_rut "Custom"
     }
@@ -45,25 +46,21 @@ erDiagram
     ADICIONAL {
         int id PK
         string nombre
-        text descripcion
         decimal precio_actual
     }
 
-    TIPO_EVENTO ||--o{ RESERVA : "clasifica_estadistica"
+    TIPO_EVENTO ||--o{ RESERVA : "clasifica"
     TIPO_EVENTO ||--o{ PAQUETE : "categoriza"
     TIPO_EVENTO {
         int id PK
-        string nombre "Ej: 15 Años, Corporativo"
+        string nombre
     }
 
     PAQUETE }|--|{ ADICIONAL : "incluye_servicios"
     PAQUETE }|--|| SALON : "incluye_salon"
     PAQUETE {
         int id PK
-        int tipo_evento_id FK
-        string nombre_combo "Ej: Fiesta 15 Oro"
-        text descripcion
-        int max_invitados
+        string nombre_combo
         decimal precio_paquete_actual
     }
 
@@ -73,27 +70,33 @@ erDiagram
         int id PK
         int cliente_id FK
         int salon_id FK
-        int tipo_evento_id FK
-        int paquete_id FK "Opcional, null si es a medida"
-        datetime fecha_hora_inicio
-        datetime fecha_hora_liberacion
-        string estado "Pendiente, Confirmada, Finalizada, Cancelada"
-        decimal precio_historico_salon
-        decimal monto_abonado "Admite 10% (min), 100% o custom"
-        datetime fecha_creacion
+        string estado "Pendiente, Confirmada, Finalizada"
+        decimal monto_abonado "Admite señas parciales"
     }
 
     RESERVA_ADICIONAL {
         int id PK
         int reserva_id FK
         int adicional_id FK
-        decimal precio_historico_adicional
     }
 
     RESENA {
         int id PK
         int reserva_id FK
-        int calificacion "1 a 5"
-        text comentario
-        datetime fecha_publicacion
+        int calificacion
     }
+
+## Cómo ejecutar este proyecto localmente
+Clonar el repositorio.
+
+Crear un entorno virtual: python -m venv env
+
+Activar el entorno virtual e instalar dependencias: pip install -r requirements.txt
+
+Aplicar las migraciones para crear la base de datos local: python manage.py migrate
+
+Crear un superusuario para acceder al Dashboard Gerencial: python manage.py createsuperuser
+
+Iniciar el servidor: python manage.py runserver
+
+Acceder a http://127.0.0.1:8000 en el navegador. Para habilitar las funciones financieras y métricas en el panel, asignar el grupo "Administrativos" al usuario desde el admin nativo (/admin/).

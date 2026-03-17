@@ -4,6 +4,10 @@ from . import views
 app_name = 'catalogo'
 
 urlpatterns = [
-    # La ruta vacía '' significa que responderá a /catalogo/
-    path('', views.SalonListView.as_view(), name='lista_salones'),
+    # Catálogo público
+    path('', views.lista_salones, name='lista_salones'),
+    path('promociones/', views.promociones, name='promociones'), # NUEVA RUTA
+    
+    # Gestión interna (Staff)
+    path('gestion/nuevo/', views.crear_salon, name='crear_salon'),
 ]
